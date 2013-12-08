@@ -59,7 +59,12 @@ class BTCChina():
 
         #post_data dictionary passed as JSON        
         self.conn.request("POST",'/api_trade_v1.php',json.dumps(post_data),headers)
-        response = self.conn.getresponse()
+
+        try:
+            response = self.conn.getresponse()
+        except Exception, e:
+            print 'Failed to get response:' + str(e)
+            return None
 
         # check response code, ID, and existence of 'result' or 'error'
         # before passing a dict of results

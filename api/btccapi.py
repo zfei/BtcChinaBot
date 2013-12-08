@@ -120,7 +120,7 @@ class BTCChina():
         if pending:
             post_data['params']=[currency]
         else:
-            post_data['params']=[currency,'false']
+            post_data['params']=[currency,''] # empty if false
         return self._private_request(post_data)
 
     def get_orders(self,id=None,open_only=True,post_data={}):
@@ -130,7 +130,7 @@ class BTCChina():
             if open_only:
                 post_data['params']=[]
             else:
-                post_data['params']=['false']
+                post_data['params']=[''] # empty if false
         else:
             post_data['method']='getOrder'
             post_data['params']=[id]
@@ -147,5 +147,5 @@ class BTCChina():
             if pending:
                 post_data['params']=[id]
             else:
-                post_data['params']=[id,'false']
+                post_data['params']=[id,''] # empty if false
         return self._private_request(post_data)

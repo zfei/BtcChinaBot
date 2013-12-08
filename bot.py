@@ -90,12 +90,15 @@ class Bot:
         if not highest_bid:
             return
 
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to sell at', highest_bid['ask']
+
         for trial in xrange(MAX_TRIAL):
             if self.trader.sell(highest_bid['ask'], BTC_AMOUNT):
                 highest_bid['status'] = 'sell'
 
                 if DEBUG_MODE:
-                    print '---'
                     print 'Bid at', highest_bid['bid'], 'filled'
                     print 'will sell at', highest_bid['ask']
 
@@ -117,6 +120,10 @@ class Bot:
 
     def update_portfolio(self):
         orders = None
+
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to get orders'
 
         for trial in xrange(MAX_TRIAL):
             orders = self.trader.get_orders()['order']
@@ -184,13 +191,16 @@ class Bot:
             sleep(NO_GOOD_SLEEP)
             return
 
-        my_bid_price = highest_bid + CNY_STEP
-        my_ask_price = my_bid_price + MIN_SURPLUS
+        my_bid_price = '{0:.2f}'.format(highest_bid + CNY_STEP)
+        my_ask_price = '{0:.2f}'.format(my_bid_price + MIN_SURPLUS)
+
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to bid at', my_bid_price
 
         for trial in xrange(MAX_TRIAL):
             if self.trader.buy(my_bid_price, BTC_AMOUNT):
                 if DEBUG_MODE:
-                    print '---'
                     print 'I ordered', BTC_AMOUNT, 'bitcoins at', my_bid_price
                     print 'will sell at', my_ask_price
 

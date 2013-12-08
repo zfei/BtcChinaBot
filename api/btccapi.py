@@ -41,50 +41,49 @@ class BTCChina():
         return phash
 
     def _private_request(self,post_data):
-        #fill in common post_data parameters
-        tonce=self._get_tonce()
-        post_data['tonce']=tonce
-        post_data['accesskey']=self.access_key
-        post_data['requestmethod']='post'
-
-        # If ID is not passed as a key of post_data, just use tonce
-        if not 'id' in post_data:
-            post_data['id']=tonce
-
-        pd_hash=self._get_params_hash(post_data)
-
-        # must use b64 encode        
-        auth_string='Basic '+base64.b64encode(self.access_key+':'+pd_hash)
-        headers={'Authorization':auth_string,'Json-Rpc-Tonce':tonce}
-
-        #post_data dictionary passed as JSON        
-        self.conn.request("POST",'/api_trade_v1.php',json.dumps(post_data),headers)
-
         try:
+            #fill in common post_data parameters
+            tonce=self._get_tonce()
+            post_data['tonce']=tonce
+            post_data['accesskey']=self.access_key
+            post_data['requestmethod']='post'
+
+            # If ID is not passed as a key of post_data, just use tonce
+            if not 'id' in post_data:
+                post_data['id']=tonce
+
+            pd_hash=self._get_params_hash(post_data)
+
+            # must use b64 encode
+            auth_string='Basic '+base64.b64encode(self.access_key+':'+pd_hash)
+            headers={'Authorization':auth_string,'Json-Rpc-Tonce':tonce}
+
+            #post_data dictionary passed as JSON
+            self.conn.request("POST",'/api_trade_v1.php',json.dumps(post_data),headers)
             response = self.conn.getresponse()
+
+            # check response code, ID, and existence of 'result' or 'error'
+            # before passing a dict of results
+            if response.status == 200:
+                # this might fail if non-json data is returned
+                resp_dict = json.loads(response.read())
+
+                # The id's may need to be used by the calling application,
+                # but for now, check and discard from the return dict
+                if str(resp_dict['id']) == str(post_data['id']):
+                    if 'result' in resp_dict:
+                        return resp_dict['result']
+                    elif 'error' in resp_dict:
+                        return resp_dict['error']
+            else:
+                # not great error handling....
+                print "status:",response.status
+                print "reason:",response.reason
+
+            return None
         except Exception, e:
             print 'Failed to get response:' + str(e)
             return None
-
-        # check response code, ID, and existence of 'result' or 'error'
-        # before passing a dict of results
-        if response.status == 200:
-            # this might fail if non-json data is returned
-            resp_dict = json.loads(response.read())
-
-            # The id's may need to be used by the calling application,
-            # but for now, check and discard from the return dict
-            if str(resp_dict['id']) == str(post_data['id']):
-                if 'result' in resp_dict:
-                    return resp_dict['result']
-                elif 'error' in resp_dict:
-                    return resp_dict['error']
-        else:
-            # not great error handling....
-            print "status:",response.status
-            print "reason:",response.reason
-
-        return None
 
     def get_account_info(self,post_data={}):
         post_data['method']='getAccountInfo'

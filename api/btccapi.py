@@ -87,8 +87,8 @@ class BTCChina():
         return self._private_request(post_data)
 
     def get_market_depth(self,post_data={}):
-        post_data['method']='getMarketDepth'
-        post_data['params']=[]
+        post_data['method']='getMarketDepth2'
+        post_data['params']=[post_data['limit']]
         return self._private_request(post_data)
 
     def buy(self,price,amount,post_data={}):

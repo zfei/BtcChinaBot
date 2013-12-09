@@ -154,7 +154,7 @@ class Bot:
         if DEBUG_MODE:
             print '---'
             print 'Ask at', lowest_ask['ask'], 'filled, bought at', lowest_ask['bid']
-            print 'current profit:', self.profit
+            print 'current profit:', '\033[93m', self.profit, '\033[0m'
 
     def update_portfolio(self):
         orders = self.get_orders()

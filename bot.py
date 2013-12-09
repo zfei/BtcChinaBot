@@ -229,7 +229,7 @@ class Bot:
         for trial in xrange(MAX_TRIAL):
             if self.trader.buy(my_bid_price, BTC_AMOUNT):
                 if DEBUG_MODE:
-                    print 'I ordered', BTC_AMOUNT, 'bitcoins at', my_bid_price
+                    print 'I ordered', BTC_AMOUNT, 'bitcoins at', '{0:.2f}'.format(my_bid_price)
                     print 'will sell at', my_ask_price
 
                 self.portfolio.append(

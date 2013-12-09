@@ -37,7 +37,8 @@ class Bot:
 
             if not response is None:
                 orders = response['order']
-                print 'Received order information'
+                if DEBUG_MODE:
+                    print 'Received order information'
                 break
 
         return orders
@@ -238,6 +239,11 @@ class Bot:
                 print '---'
                 print 'Too many open orders, sleep for', TOO_MANY_OPEN_SLEEP, 'seconds.'
 
+            if GET_INFO_BEFORE_SLEEP:
+                print '---'
+                print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+                print 'Total profit', self.profit
+
             sleep(TOO_MANY_OPEN_SLEEP)
             return
 
@@ -253,6 +259,11 @@ class Bot:
                 print '---'
                 print 'Market spread:', str(lowest_ask - highest_bid)
                 print 'Nothing interesting, sleep for', NO_GOOD_SLEEP, 'seconds.'
+
+            if GET_INFO_BEFORE_SLEEP:
+                print '---'
+                print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+                print 'Total profit', self.profit
 
             sleep(NO_GOOD_SLEEP)
             return

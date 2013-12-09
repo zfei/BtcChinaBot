@@ -122,6 +122,15 @@ class Bot:
                 lowest_ask = order
         return lowest_ask
 
+    def get_highest_bid_id(self, orders):
+        highest_bid_id = None
+        highest_bid_price = -1
+        for order in orders:
+            if order['type'] == 'bid' and order['price'] > highest_bid_price:
+                highest_bid_price = order['price']
+                highest_bid_id = order['id']
+        return highest_bid_id
+
     def highest_bid_filled(self):
         highest_bid = self.get_highest_bid()
 
@@ -172,8 +181,9 @@ class Bot:
         for num_bids_filled in xrange(num_port_bids - num_open_bids):
             self.highest_bid_filled()
 
-        # remove unrealistic bids
-        # NO GOOD NO GOOD
+        return orders
+
+    def give_up_orders(self, orders):
         if REMOVE_UNREALISTIC:
             market_depth = self.get_market_depth()
             if market_depth is None:
@@ -185,19 +195,21 @@ class Bot:
 
             market_highest_bid_price = self.get_highest_market_bid(market_depth)
             if market_highest_bid_price - my_highest_bid['bid'] > REMOVE_THRESHOLD:
-                self.portfolio.remove(my_highest_bid)
-                # TODO: actually cancel the order
+                if self.cancel_order(self.get_highest_bid_id(orders)):
+                    self.portfolio.remove(my_highest_bid)
 
     def loop_body(self):
-        self.update_portfolio()
+        orders = self.update_portfolio()
 
         if len(self.portfolio) >= MAX_OPEN_ORDERS:
-            if DEBUG_MODE:
-                print '---'
-                print 'Too many open orders, sleep for', TOO_MANY_OPEN_SLEEP, 'seconds.'
+            self.give_up_orders(orders)
+            if len(self.portfolio) >= MAX_OPEN_ORDERS:
+                if DEBUG_MODE:
+                    print '---'
+                    print 'Too many open orders, sleep for', TOO_MANY_OPEN_SLEEP, 'seconds.'
 
-            sleep(TOO_MANY_OPEN_SLEEP)
-            return
+                sleep(TOO_MANY_OPEN_SLEEP)
+                return
         else:
             if DEBUG_MODE:
                 print '---'

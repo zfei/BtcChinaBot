@@ -133,7 +133,7 @@ class Bot:
             print 'Attempting to put sell order at', highest_bid['ask']
 
         for trial in xrange(MAX_TRIAL):
-            if self.trader.sell(highest_bid['ask'], BTC_AMOUNT):
+            if self.trader.sell('{0:.2f}'.format(highest_bid['ask']), BTC_AMOUNT):
                 highest_bid['status'] = 'sell'
 
                 if DEBUG_MODE:
@@ -233,7 +233,7 @@ class Bot:
                     print 'will sell at', my_ask_price
 
                 self.portfolio.append(
-                    {'bid': '{0:.2f}'.format(my_bid_price), 'ask': '{0:.2f}'.format(my_ask_price), 'status': 'buy'})
+                    {'bid': my_bid_price, 'ask': my_ask_price, 'status': 'buy'})
                 break
 
     def start(self):

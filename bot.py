@@ -35,6 +35,7 @@ class Bot:
         for trial in xrange(MAX_TRIAL):
             orders = self.trader.get_orders()['order']
             if not orders is None:
+                print 'Received order information'
                 break
 
         return orders
@@ -58,7 +59,7 @@ class Bot:
     def reset(self):
         if CANCEL_ALL_ON_STARTUP:
             orders = self.get_orders()
-            if not orders:
+            if orders is None:
                 exit(1)
 
             for order in orders:
@@ -152,7 +153,7 @@ class Bot:
 
         if DEBUG_MODE:
             print '---'
-            print 'Ask at', lowest_ask['ask'],'filled, bought at', lowest_ask['bid']
+            print 'Ask at', lowest_ask['ask'], 'filled, bought at', lowest_ask['bid']
             print 'current profit:', self.profit
 
     def update_portfolio(self):
@@ -218,8 +219,8 @@ class Bot:
             sleep(NO_GOOD_SLEEP)
             return
 
-        my_bid_price = '{0:.2f}'.format(highest_bid + CNY_STEP)
-        my_ask_price = '{0:.2f}'.format(my_bid_price + MIN_SURPLUS)
+        my_bid_price = highest_bid + CNY_STEP
+        my_ask_price = my_bid_price + MIN_SURPLUS
 
         if DEBUG_MODE:
             print '---'
@@ -231,13 +232,15 @@ class Bot:
                     print 'I ordered', BTC_AMOUNT, 'bitcoins at', my_bid_price
                     print 'will sell at', my_ask_price
 
-                self.portfolio.append({'bid': my_bid_price, 'ask': my_ask_price, 'status': 'buy'})
+                self.portfolio.append(
+                    {'bid': '{0:.2f}'.format(my_bid_price), 'ask': '{0:.2f}'.format(my_ask_price), 'status': 'buy'})
                 break
 
     def start(self):
         self.reset()
         while True:
             self.loop_body()
+
 
 if __name__ == '__main__':
     bot = Bot()

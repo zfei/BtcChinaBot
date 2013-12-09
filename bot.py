@@ -62,13 +62,17 @@ class Bot:
         return ret
 
     def reset(self):
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to cancel over night orders'
+
         if CANCEL_ALL_ON_STARTUP:
             orders = self.get_orders()
             if orders is None:
                 exit(1)
 
             for order in orders:
-                if not self.cancel_order(order['id']):
+                if self.cancel_order(order['id']) is None:
                     exit(1)
 
     def get_market_depth(self):
@@ -83,7 +87,7 @@ class Bot:
 
     def get_num_open_bids(self, orders):
         bid_count = 0
-        if not orders:
+        if orders is None:
             return None
 
         for order in orders:
@@ -93,7 +97,7 @@ class Bot:
 
     def get_num_open_asks(self, orders):
         ask_count = 0
-        if not orders:
+        if orders is None:
             return None
 
         for order in orders:
@@ -173,7 +177,7 @@ class Bot:
     def highest_bid_filled(self):
         highest_bid = self.get_highest_bid()
 
-        if not highest_bid:
+        if highest_bid is None:
             return
 
         if DEBUG_MODE:
@@ -186,7 +190,7 @@ class Bot:
     def lowest_ask_filled(self):
         lowest_ask = self.get_lowest_ask()
 
-        if not lowest_ask:
+        if lowest_ask is None:
             return
 
         self.profit += (lowest_ask['ask'] - lowest_ask['bid']) * BTC_AMOUNT
@@ -199,7 +203,7 @@ class Bot:
 
     def update_portfolio(self, check_old_orders=False):
         orders = self.get_orders()
-        if not orders:
+        if orders is None:
             return None
 
         num_open_bids = self.get_num_open_bids(orders)
@@ -239,7 +243,7 @@ class Bot:
 
     def loop_body(self):
         orders = self.update_portfolio()
-        if not orders:
+        if orders is None:
             return
 
         if DEBUG_MODE:
@@ -258,7 +262,7 @@ class Bot:
             if GET_INFO_BEFORE_SLEEP:
                 print '---'
                 print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
-                print 'Total profit', self.profit
+                print 'Total profit', '\033[93m', self.profit, '\033[0m'
 
             sleep(TOO_MANY_OPEN_SLEEP)
             return

@@ -181,9 +181,8 @@ class Bot:
         for num_bids_filled in xrange(num_port_bids - num_open_bids):
             self.highest_bid_filled()
 
-        return orders
-
     def give_up_orders(self, orders):
+        # TODO: NO WORKING.
         if REMOVE_UNREALISTIC:
             market_depth = self.get_market_depth()
             if market_depth is None:
@@ -199,17 +198,15 @@ class Bot:
                     self.portfolio.remove(my_highest_bid)
 
     def loop_body(self):
-        orders = self.update_portfolio()
+        self.update_portfolio()
 
         if len(self.portfolio) >= MAX_OPEN_ORDERS:
-            self.give_up_orders(orders)
-            if len(self.portfolio) >= MAX_OPEN_ORDERS:
-                if DEBUG_MODE:
-                    print '---'
-                    print 'Too many open orders, sleep for', TOO_MANY_OPEN_SLEEP, 'seconds.'
+            if DEBUG_MODE:
+                print '---'
+                print 'Too many open orders, sleep for', TOO_MANY_OPEN_SLEEP, 'seconds.'
 
-                sleep(TOO_MANY_OPEN_SLEEP)
-                return
+            sleep(TOO_MANY_OPEN_SLEEP)
+            return
         else:
             if DEBUG_MODE:
                 print '---'

@@ -212,14 +212,14 @@ class Bot:
             if lowest_bid_id is None:
                 return orders
 
-            response = self.cancel_order(lowest_bid_id)
-            if response is None:
-                return orders
+            my_lowest_bid = self.get_lowest_bid()
+            my_lowest_bid_price = my_lowest_bid['bid']
+            market_highest_bid = self.get_highest_market_bid(self.get_market_depth())
 
-            if response is True:
-                self.portfolio.remove(self.get_lowest_bid())
-            # else:
-            #     self.bid_filled(self.get_lowest_bid())
+            if market_highest_bid - my_lowest_bid_price >= REMOVE_THRESHOLD:
+                response = self.cancel_order(lowest_bid_id)
+                if response is True:
+                    self.portfolio.remove(my_lowest_bid)
 
         return orders
 

@@ -39,6 +39,7 @@ class Bot:
                 orders = response['order']
                 if DEBUG_MODE:
                     print 'Received order information'
+
                 break
 
         return orders
@@ -55,6 +56,7 @@ class Bot:
             if not ret is None:
                 if DEBUG_MODE:
                     print'Canceled order', order_id
+
                 break
 
         return ret
@@ -154,7 +156,7 @@ class Bot:
 
     def bid_filled(self, bid):
         for trial in xrange(MAX_TRIAL):
-            if self.trader.sell('{0:.2f}'.format(bid['ask']), BTC_AMOUNT):
+            if self.trader.sell('{0:.2f}'.format(bid['ask']), BTC_AMOUNT) is True:
                 bid['status'] = 'sell'
 
                 if DEBUG_MODE:
@@ -198,6 +200,11 @@ class Bot:
         num_open_asks = self.get_num_open_asks(orders)
         num_port_bids = self.get_num_portfolio_bids()
         num_port_asks = self.get_num_portfolio_asks()
+        
+        if DEBUG_MODE:
+            print '---'
+            print 'I have', num_port_asks - num_open_asks, 'asks filled'
+            print 'I have', num_port_bids - num_open_bids, 'bids filled'
 
         for num_asks_filled in xrange(num_port_asks - num_open_asks):
             self.lowest_ask_filled()
@@ -229,7 +236,8 @@ class Bot:
 
         if DEBUG_MODE:
             print '---'
-            print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+            print 'I recorded', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+            print 'API shows', self.get_num_open_bids(), 'open bids,', self.get_num_open_asks(), 'asks.'
 
         if len(self.portfolio) >= MAX_OPEN_ORDERS and REMOVE_UNREALISTIC:
             self.update_portfolio(True)
@@ -263,7 +271,7 @@ class Bot:
             if GET_INFO_BEFORE_SLEEP:
                 print '---'
                 print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
-                print 'Total profit', self.profit
+                print 'Total profit', '\033[93m', self.profit, '\033[0m'
 
             sleep(NO_GOOD_SLEEP)
             return
@@ -276,7 +284,7 @@ class Bot:
             print 'Attempting to bid at', my_bid_price
 
         for trial in xrange(MAX_TRIAL):
-            if self.trader.buy('{0:.2f}'.format(my_bid_price), BTC_AMOUNT):
+            if self.trader.buy('{0:.2f}'.format(my_bid_price), BTC_AMOUNT) is True:
                 if DEBUG_MODE:
                     print 'I ordered', BTC_AMOUNT, 'bitcoins at', my_bid_price
                     print 'will sell at', my_ask_price

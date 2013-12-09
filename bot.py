@@ -25,8 +25,45 @@ class Bot:
     def should_buy(self, lowest_ask, highest_bid):
         return lowest_ask - highest_bid > DIFFERENCE_STEP
 
+    def get_orders(self):
+        orders = None
+
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to get orders'
+
+        for trial in xrange(MAX_TRIAL):
+            orders = self.trader.get_orders()['order']
+            if not orders is None:
+                break
+
+        return orders
+
+    def cancel_order(self, order_id):
+        if DEBUG_MODE:
+            print '---'
+            print 'Attempting to cancel order', order_id
+
+        ret = None
+
+        for trial in xrange(MAX_TRIAL):
+            ret = self.trader.cancel(order_id)
+            if not ret is None:
+                if DEBUG_MODE:
+                    print'Canceled order', order_id
+                break
+
+        return ret
+
     def reset(self):
-        pass
+        if CANCEL_ALL_ON_STARTUP:
+            orders = self.get_orders()
+            if not orders:
+                exit(1)
+
+            for order in orders:
+                if not self.cancel_order(order['id']):
+                    exit(1)
 
     def get_market_depth(self):
         market_depth = None
@@ -119,18 +156,8 @@ class Bot:
             print 'current profit:', self.profit
 
     def update_portfolio(self):
-        orders = None
-
-        if DEBUG_MODE:
-            print '---'
-            print 'Attempting to get orders'
-
-        for trial in xrange(MAX_TRIAL):
-            orders = self.trader.get_orders()['order']
-            if not orders is None:
-                break
-
-        if orders is None:
+        orders = self.get_orders()
+        if not orders:
             return
 
         num_open_bids = self.get_num_open_bids(orders)

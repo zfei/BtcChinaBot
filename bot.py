@@ -17,10 +17,10 @@ class Bot:
         self.profit = 0
 
     def get_lowest_market_ask(self, market_depth):
-        return market_depth['market_depth']['ask'][0]['price']
+        return float(market_depth['market_depth']['ask'][0]['price'])
 
     def get_highest_market_bid(self, market_depth):
-        return market_depth['market_depth']['bid'][0]['price']
+        return float(market_depth['market_depth']['bid'][0]['price'])
 
     def should_buy(self, lowest_ask, highest_bid):
         return lowest_ask - highest_bid > DIFFERENCE_STEP
@@ -115,12 +115,21 @@ class Bot:
                 highest_bid = order
         return highest_bid
 
+    def get_lowest_bid(self):
+        lowest_bid = None
+        lowest_bid_price = float('inf')
+        for order in self.portfolio:
+            if order['status'] == 'buy' and float(order['bid']) < lowest_bid_price:
+                lowest_bid_price = float(order['bid'])
+                lowest_bid = order
+        return lowest_bid
+
     def get_lowest_ask(self):
         lowest_ask = None
         lowest_ask_price = float('inf')
         for order in self.portfolio:
-            if order['status'] == 'sell' and order['ask'] < lowest_ask_price:
-                lowest_ask_price = order['ask']
+            if order['status'] == 'sell' and float(order['ask']) < lowest_ask_price:
+                lowest_ask_price = float(order['ask'])
                 lowest_ask = order
         return lowest_ask
 
@@ -128,10 +137,29 @@ class Bot:
         highest_bid_id = None
         highest_bid_price = -1
         for order in orders:
-            if order['type'] == 'bid' and order['price'] > highest_bid_price:
-                highest_bid_price = order['price']
+            if order['type'] == 'bid' and float(order['price']) > highest_bid_price:
+                highest_bid_price = float(order['price'])
                 highest_bid_id = order['id']
         return highest_bid_id
+
+    def get_lowest_bid_id(self, orders):
+        lowest_bid_id = None
+        lowest_bid_price = float('inf')
+        for order in orders:
+            if order['type'] == 'bid' and float(order['price']) < lowest_bid_price:
+                lowest_bid_price = float(order['price'])
+                lowest_bid_id = order['id']
+        return lowest_bid_id
+
+    def bid_filled(self, bid):
+        for trial in xrange(MAX_TRIAL):
+            if self.trader.sell('{0:.2f}'.format(bid['ask']), BTC_AMOUNT):
+                bid['status'] = 'sell'
+
+                if DEBUG_MODE:
+                    print 'will sell at', bid['ask']
+
+                break
 
     def highest_bid_filled(self):
         highest_bid = self.get_highest_bid()
@@ -144,14 +172,7 @@ class Bot:
             print 'Bid at', highest_bid['bid'], 'filled'
             print 'Attempting to put sell order at', highest_bid['ask']
 
-        for trial in xrange(MAX_TRIAL):
-            if self.trader.sell('{0:.2f}'.format(highest_bid['ask']), BTC_AMOUNT):
-                highest_bid['status'] = 'sell'
-
-                if DEBUG_MODE:
-                    print 'will sell at', highest_bid['ask']
-
-                break
+        self.bid_filled(highest_bid)
 
     def lowest_ask_filled(self):
         lowest_ask = self.get_lowest_ask()
@@ -167,7 +188,7 @@ class Bot:
             print 'Ask at', lowest_ask['ask'], 'filled, bought at', lowest_ask['bid']
             print 'current profit:', '\033[93m', self.profit, '\033[0m'
 
-    def update_portfolio(self):
+    def update_portfolio(self, check_old_orders=False):
         orders = self.get_orders()
         if not orders:
             return
@@ -183,25 +204,24 @@ class Bot:
         for num_bids_filled in xrange(num_port_bids - num_open_bids):
             self.highest_bid_filled()
 
+        if check_old_orders:
+            if len(self.portfolio) < MAX_OPEN_ORDERS:
+                return orders
+
+            lowest_bid_id = self.get_lowest_bid_id(orders)
+            if lowest_bid_id is None:
+                return orders
+
+            response = self.cancel_order(lowest_bid_id)
+            if response is None:
+                return orders
+
+            if response is True:
+                self.portfolio.remove(self.get_lowest_bid())
+            # else:
+            #     self.bid_filled(self.get_lowest_bid())
+
         return orders
-
-    def give_up_orders(self):
-        # TODO: NO WORKING.
-        orders = self.update_portfolio()
-
-        if REMOVE_UNREALISTIC:
-            market_depth = self.get_market_depth()
-            if market_depth is None:
-                return
-
-            my_highest_bid = self.get_highest_bid()
-            if not my_highest_bid:
-                return
-
-            market_highest_bid_price = self.get_highest_market_bid(market_depth)
-            if market_highest_bid_price - my_highest_bid['bid'] > REMOVE_THRESHOLD:
-                if self.cancel_order(self.get_highest_bid_id(orders)):
-                    self.portfolio.remove(my_highest_bid)
 
     def loop_body(self):
         self.update_portfolio()
@@ -209,6 +229,9 @@ class Bot:
         if DEBUG_MODE:
             print '---'
             print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+
+        if len(self.portfolio) >= MAX_OPEN_ORDERS and REMOVE_UNREALISTIC:
+            self.update_portfolio(True)
 
         if len(self.portfolio) >= MAX_OPEN_ORDERS:
             if DEBUG_MODE:

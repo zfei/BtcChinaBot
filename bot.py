@@ -33,8 +33,10 @@ class Bot:
             print 'Attempting to get orders'
 
         for trial in xrange(MAX_TRIAL):
-            orders = self.trader.get_orders()['order']
-            if not orders is None:
+            response = self.trader.get_orders()
+
+            if not response is None:
+                orders = response['order']
                 print 'Received order information'
                 break
 
@@ -139,6 +141,7 @@ class Bot:
 
         if DEBUG_MODE:
             print '---'
+            print 'Bid at', highest_bid['bid'], 'filled'
             print 'Attempting to put sell order at', highest_bid['ask']
 
         for trial in xrange(MAX_TRIAL):
@@ -146,7 +149,6 @@ class Bot:
                 highest_bid['status'] = 'sell'
 
                 if DEBUG_MODE:
-                    print 'Bid at', highest_bid['bid'], 'filled'
                     print 'will sell at', highest_bid['ask']
 
                 break
@@ -186,7 +188,7 @@ class Bot:
     def give_up_orders(self):
         # TODO: NO WORKING.
         orders = self.update_portfolio()
-        
+
         if REMOVE_UNREALISTIC:
             market_depth = self.get_market_depth()
             if market_depth is None:
@@ -204,6 +206,10 @@ class Bot:
     def loop_body(self):
         self.update_portfolio()
 
+        if DEBUG_MODE:
+            print '---'
+            print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
+
         if len(self.portfolio) >= MAX_OPEN_ORDERS:
             if DEBUG_MODE:
                 print '---'
@@ -211,10 +217,6 @@ class Bot:
 
             sleep(TOO_MANY_OPEN_SLEEP)
             return
-        else:
-            if DEBUG_MODE:
-                print '---'
-                print 'I have', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
 
         market_depth = self.get_market_depth()
         if not market_depth:

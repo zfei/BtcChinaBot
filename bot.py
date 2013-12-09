@@ -83,6 +83,9 @@ class Bot:
 
     def get_num_open_bids(self, orders):
         bid_count = 0
+        if not orders:
+            return bid_count
+
         for order in orders:
             if order['type'] == 'bid':
                 bid_count += 1
@@ -90,6 +93,9 @@ class Bot:
 
     def get_num_open_asks(self, orders):
         ask_count = 0
+        if not orders:
+            return ask_count
+
         for order in orders:
             if order['type'] == 'ask':
                 ask_count += 1
@@ -200,7 +206,7 @@ class Bot:
         num_open_asks = self.get_num_open_asks(orders)
         num_port_bids = self.get_num_portfolio_bids()
         num_port_asks = self.get_num_portfolio_asks()
-        
+
         if DEBUG_MODE:
             print '---'
             print 'I have', num_port_asks - num_open_asks, 'asks filled'
@@ -232,12 +238,12 @@ class Bot:
         return orders
 
     def loop_body(self):
-        self.update_portfolio()
+        orders = self.update_portfolio()
 
         if DEBUG_MODE:
             print '---'
             print 'I recorded', self.get_num_portfolio_bids(), 'open bids,', self.get_num_portfolio_asks(), 'asks.'
-            print 'API shows', self.get_num_open_bids(), 'open bids,', self.get_num_open_asks(), 'asks.'
+            print 'API shows', self.get_num_open_bids(orders), 'open bids,', self.get_num_open_asks(orders), 'asks.'
 
         if len(self.portfolio) >= MAX_OPEN_ORDERS and REMOVE_UNREALISTIC:
             self.update_portfolio(True)

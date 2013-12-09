@@ -181,8 +181,12 @@ class Bot:
         for num_bids_filled in xrange(num_port_bids - num_open_bids):
             self.highest_bid_filled()
 
-    def give_up_orders(self, orders):
+        return orders
+
+    def give_up_orders(self):
         # TODO: NO WORKING.
+        orders = self.update_portfolio()
+        
         if REMOVE_UNREALISTIC:
             market_depth = self.get_market_depth()
             if market_depth is None:

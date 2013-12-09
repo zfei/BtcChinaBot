@@ -84,7 +84,7 @@ class Bot:
     def get_num_open_bids(self, orders):
         bid_count = 0
         if not orders:
-            return bid_count
+            return None
 
         for order in orders:
             if order['type'] == 'bid':
@@ -94,7 +94,7 @@ class Bot:
     def get_num_open_asks(self, orders):
         ask_count = 0
         if not orders:
-            return ask_count
+            return None
 
         for order in orders:
             if order['type'] == 'ask':
@@ -200,7 +200,7 @@ class Bot:
     def update_portfolio(self, check_old_orders=False):
         orders = self.get_orders()
         if not orders:
-            return
+            return None
 
         num_open_bids = self.get_num_open_bids(orders)
         num_open_asks = self.get_num_open_asks(orders)
@@ -239,6 +239,8 @@ class Bot:
 
     def loop_body(self):
         orders = self.update_portfolio()
+        if not orders:
+            return
 
         if DEBUG_MODE:
             print '---'

@@ -20,13 +20,13 @@ rename sample_settings.py to settings.py:
 ``` bash
 mv sample_settings.py settings.py
 ```
-and make changes to it (set API key & secret and parameters).
+and make changes to it (set API access & secret and parameters).
 
 Finally, run the bot:
 ``` bash
 python bot.py
 ```
-This program is provided AS IS. Use it at your own risk.
+This program is provided AS IS. Do not enter API information if you do not know what you are doing. Use it at your own risk.
 
 License
 ---
@@ -38,7 +38,7 @@ The use of this program is subject to MIT LICENSE, please read LICENSE in the pr
 
 
 
-I've made more than 5 changes to it to actually make it work.
+I've made more than 5 changes to it to actually make it work, plus numerous wrappers in bot.py to make sure the ridiculous API doesn't mess things up.
 
 I've also spent much time (several nights right before a final exam) to tune the program so that it behaves.
 

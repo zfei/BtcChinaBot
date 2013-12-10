@@ -31,8 +31,7 @@ This program is provided AS IS. Do not enter API information if you do not know 
 License
 ---
 
-The use of this program is subject to MIT LICENSE, please read LICENSE in the project folder if you do not know about it.
-
+The use of this program is subject to MIT LICENSE, please refer to LICENSE for additional information.
 
 ---
 

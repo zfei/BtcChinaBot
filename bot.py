@@ -168,13 +168,16 @@ class Bot:
 
     def bid_filled(self, bid):
         for trial in xrange(MAX_TRIAL):
-            if self.trader.sell('{0:.2f}'.format(bid['ask']), BTC_AMOUNT) is True:
+            response = self.trader.sell('{0:.2f}'.format(bid['ask']), BTC_AMOUNT)
+            if response is True:
                 bid['status'] = 'sell'
 
                 if DEBUG_MODE:
                     print 'will sell at', bid['ask']
 
                 break
+            else:
+                print 'Sell failed:', response
 
     def highest_bid_filled(self):
         highest_bid = self.get_highest_bid()

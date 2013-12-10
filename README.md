@@ -14,7 +14,25 @@ Usage
 git clone https://github.com/zfei/BtcChinaBot
 ```
 
-after it's downloaded, cd into BtcChinaBot, rename sample_settings.py to settings.py and make changes to it.
+after it's downloaded, cd into BtcChinaBot:
+
+``` bash
+cd ./BtcChinaBot
+```
+
+rename sample_settings.py to settings.py:
+
+``` bash
+mv sample_settings.py settings.py
+```
+
+and make changes to it (set API key & secret and parameters).
+
+Finally, run the bot:
+
+``` bash
+python bot.py
+```
 
 This program is provided AS IS. Use it at your own risk.
 

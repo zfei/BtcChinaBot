@@ -301,7 +301,7 @@ class Bot:
             print 'Attempting to bid at', my_bid_price
 
         for trial in xrange(MAX_TRIAL):
-            if self.trader.buy('{0:.2f}'.format(my_bid_price), BTC_AMOUNT) is True:
+            if self.trader.buy('{0:.2f}'.format(my_bid_price), BTC_AMOUNT):
                 if DEBUG_MODE:
                     print 'I ordered', BTC_AMOUNT, 'bitcoins at', my_bid_price
                     print 'will sell at', my_ask_price

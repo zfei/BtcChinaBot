@@ -62,18 +62,20 @@ class Bot:
         return ret
 
     def reset(self):
-        if DEBUG_MODE:
-            print '---'
-            print 'Attempting to cancel over night orders'
-
         if CANCEL_ALL_ON_STARTUP:
-            orders = self.get_orders()
-            if orders is None:
-                exit(1)
+            if DEBUG_MODE:
+                print '---'
+                print 'Attempting to cancel over night orders'
 
-            for order in orders:
-                if self.cancel_order(order['id']) is None:
+            orders = self.get_orders()
+            while len(orders) > 0:
+                if orders is None:
                     exit(1)
+
+                for order in orders:
+                    if self.cancel_order(order['id']) is None:
+                        exit(1)
+                orders = self.get_orders()
 
     def get_market_depth(self):
         market_depth = None

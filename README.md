@@ -2,7 +2,7 @@ BTC China Bot
 ===========
 
 This bot runs on [BTC China](https://vip.btcchina.com), aka the heaven of trading bots, where transaction fee is 0%.
-Currently it only follows simple heuristics (buy low and sell high). The assumption for this to work is that the market price is constantly changing, you can also buy at highest bid price and sell a little lower than lowest ask price.
+Currently it only follows simple heuristics (buy low and sell high). The assumption for this to work is that the market price is constantly changing, you can always buy at highest bid price and sell a little lower than lowest ask price in no time.
 
 I decided to open source the trading bot, hoping people can benefit from or, even better, contribute to the project and make it better.
 

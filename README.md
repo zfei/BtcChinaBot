@@ -37,10 +37,6 @@ The use of this program is subject to MIT LICENSE, please refer to LICENSE for a
 
 
 
-I've made more than 5 changes to it to actually make it work, plus numerous wrappers in bot.py to make sure the ridiculous API doesn't mess things up.
-
-I've also spent much time (several nights right before a final exam) to tune the program so that it behaves.
-
 
 
 ``` bash

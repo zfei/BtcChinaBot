@@ -7,9 +7,6 @@ from api.btccapi import BTCChina
 from settings import *
 
 
-pp = pprint.PrettyPrinter()
-
-
 class Bot:
     def __init__(self):
         self.trader = BTCChina(API_ACCESS, API_SECRET)
@@ -177,7 +174,8 @@ class Bot:
 
                 break
             else:
-                print 'Sell failed:', response
+                if DEBUG_MODE:
+                    print 'Sell failed:', response
 
     def highest_bid_filled(self):
         highest_bid = self.get_highest_bid()

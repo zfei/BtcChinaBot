@@ -13,7 +13,7 @@ class BTCChina():
     def __init__(self,access=None,secret=None):
         self.access_key=access
         self.secret_key=secret
-        self.conn=httplib.HTTPSConnection("api.btcchina.com", 80, timeout=10)
+        self.conn=httplib.HTTPSConnection("api.btcchina.com", 443, timeout=10)
 
     def _get_tonce(self):
         return int(time.time()*1000000)
